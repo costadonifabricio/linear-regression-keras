@@ -5,31 +5,44 @@ from keras.api.models import Sequential
 from keras.api.layers import Dense
 from keras.api.optimizers import SGD
 
-# Leer el archivo CSV y almacenar los datos en un DataFrame
-df = pd.read_csv('altura_peso.csv') 
+## Lee el archivo CSV y devuelve las variables x (altura) y y (peso).
+def cargar_datos(ruta_csv):
+    df = pd.read_csv(ruta_csv)
+    x = df['Altura'].values
+    y = df['Peso'].values
+    return x, y
 
-# Crear las variables x (altura) y (peso)
-x = df['Altura'].values
-y = df['Peso'].values
+## Crea y compila un modelo de Regresión Lineal usando Keras.
+def crear_modelo():
+    model = Sequential()
+    model.add(Dense(1, input_dim=1, activation='linear'))
+    model.compile(optimizer=SGD(learning_rate=0.0004), loss='mean_squared_error')
+    return model
 
-# Crear el modelo de Regresión Lineal usando Keras
-model = Sequential()
-model.add(Dense(1, input_dim=1, activation='linear'))
+## Entrena el modelo con los datos de altura (x) y peso (y).
+def entrenar_modelo(model, x, y, epochs=100):
+    model.fit(x, y, epochs=epochs, verbose=1)
+    return model
 
-# Compilar el modelo
-model.compile(optimizer=SGD(learning_rate=0.01), loss='mean_squared_error')
+## Realiza predicciones con el modelo entrenado.
+def realizar_predicciones(model, x):
+    return model.predict(x)
 
-# Entrenar el modelo
-model.fit(x, y, epochs=100, verbose=1)
+## Muestra los resultados de la predicción comparados con los datos reales.
+def visualizar_resultados(x, y, y_pred):
 
-# Realizar predicciones
-y_pred = model.predict(x)
+    plt.scatter(x, y, color='blue', label='Datos reales')
+    plt.plot(x, y_pred, color='red', label='Predicción')
+    plt.title('Regresión Lineal entre Altura y Peso')
+    plt.xlabel('Altura')
+    plt.ylabel('Peso')
+    plt.legend()
+    plt.show()
 
-# Para ver los resultados 👍
-plt.scatter(x, y, color='blue', label='Datos reales')
-plt.plot(x, y_pred, color='red', label='Predicción')
-plt.title('Regresión Lineal entre Altura y Peso')
-plt.xlabel('Altura')
-plt.ylabel('Peso')
-plt.legend()
-plt.show()
+# Ejecución del código
+ruta_csv = 'altura_peso.csv'
+x, y = cargar_datos(ruta_csv)
+model = crear_modelo()
+model = entrenar_modelo(model, x, y)
+y_prediccion = realizar_predicciones(model, x)
+visualizar_resultados(x, y, y_prediccion)
